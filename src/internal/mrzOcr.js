@@ -1,27 +1,45 @@
-'use strict';
+// @ts-check
+import { getLinesFromImage } from 'ocr-tools';
 
-const { getLinesFromImage } = require('ocr-tools');
-
-const { predictImages } = require('../svm');
+import { predictImages } from '../svm.js';
 
 async function mrzOcr(image, roiOptions = {}) {
-  let rois;
   roiOptions = Object.assign({}, { method: 'svm' }, roiOptions);
   let { lines, mask, painted, averageSurface } = getLinesFromImage(
     image,
     roiOptions
   );
 
+
   // A line should have at least 5 ROIS (swiss driving license)
   lines = lines.filter((line) => line.rois.length > 5);
 
-  // we keep maximum the last 3 lines
-  if (lines.length > 3) {
-    lines = lines.slice(lines.length - 3, lines.length);
-  }
-  let ocrResult = [];
 
-  rois = [];
+  const result = await ocrLines(lines, {image, mask, painted, averageSurface});
+  return result
+}
+
+async function ocrLines(lines, ctx) {
+  const {image, mask, painted, averageSurface} = ctx;
+  if (!lines.length) {
+    throw new Error('No lines found');
+  }
+
+  
+  /**
+   * Description placeholder
+   *
+   * @type {{
+    image: IJS.Image,
+    width: number,
+    height: number,
+    line: number,
+    column: number,
+    predicted?: string
+   }[]}
+   */
+  const rois = [];
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     for (let j = 0; j < line.rois.length; j++) {
@@ -41,19 +59,26 @@ async function mrzOcr(image, roiOptions = {}) {
     }
   }
 
+
+  
+  /** @type {number[]} */
   let predicted = await predictImages(rois.map((roi) => roi.image), 'ESC-v2');
-  predicted = predicted.map((p) => String.fromCharCode(p));
-  predicted.forEach((p, idx) => {
+
+  const toString = predicted.map((p) => String.fromCharCode(p));
+  toString.forEach((p, idx) => {
     rois[idx].predicted = p;
   });
   let count = 0;
+
+  let ocrResult = [];
   for (let line of lines) {
     let lineText = '';
     for (let i = 0; i < line.rois.length; i++) {
-      lineText += predicted[count++];
+      lineText += toString[count++];
     }
     ocrResult.push(lineText);
   }
+
 
   return {
     rois,
@@ -64,4 +89,4 @@ async function mrzOcr(image, roiOptions = {}) {
   };
 }
 
-module.exports = mrzOcr;
+export default mrzOcr;

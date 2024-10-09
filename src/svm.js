@@ -1,20 +1,27 @@
-'use strict';
-const path = require('path');
+import { resolve, join } from 'path';
 
-const fs = require('fs-extra');
-const groupBy = require('lodash.groupby');
-const hog = require('hog-features');
-const SVMPromise = Promise.resolve(require('libsvm-js/wasm'));
-const Kernel = require('ml-kernel');
-const range = require('lodash.range');
-const uniq = require('lodash.uniq');
-const BSON = require('bson');
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+
+
+import fs from 'fs-extra'
+import groupBy from 'lodash.groupby';
+import { extractHOG as _extractHOG } from 'hog-features';
+import SVMPromise from 'libsvm-js/wasm.js'
+import Kernel from 'ml-kernel';
+import range from 'lodash.range';
+import uniq from 'lodash.uniq';
+import BSON from 'bson'
+import readImages from '../src/util/readWrite.js';
 
 let SVM;
 
 async function loadData(dir) {
-  const { readImages } = require('../src/util/readWrite');
-  dir = path.resolve(path.join(__dirname, '..'), dir);
+  dir = resolve(join(__dirname, '..'), dir);
   const data = await readImages(dir);
   for (let entry of data) {
     let { image } = entry;
@@ -52,7 +59,7 @@ function extractHOG(image) {
     bins: 4,
     norm: 'L2'
   };
-  let hogFeatures = hog.extractHOG(image, optionsHog);
+  let hogFeatures = _extractHOG(image, optionsHog);
   return hogFeatures;
 }
 
@@ -91,6 +98,7 @@ async function applyModel(name, Xtest) {
   );
 
   const model = await fs.readFile(modelPath, 'utf-8');
+
   const classifier = SVM.load(model);
   const prediction = predict(classifier, Xtrain, Xtest, kernelOptions);
   return prediction;
@@ -166,8 +174,8 @@ async function train(letters, SVMOptions, kernelOptions) {
 }
 
 function getFilePath(name) {
-  const dataDir = path.join(__dirname, '../models');
-  const fileBase = path.join(dataDir, name);
+  const dataDir = join(__dirname, '../models');
+  const fileBase = join(dataDir, name);
   return {
     descriptors: `${fileBase}.svm.descriptors`,
     model: `${fileBase}.svm.model`
@@ -183,7 +191,7 @@ function getKernel(options) {
   return new Kernel(options.type, options);
 }
 
-module.exports = {
+export {
   applyModel,
   createModel,
   train,

@@ -1,8 +1,6 @@
-'use strict';
+import { readFileSync } from 'fs';
 
-var fs = require('fs');
-
-var Papa = require('papaparse');
+import { parse } from 'papaparse';
 
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789<'.toUpperCase();
 const LINE_LENGTH = 'line length';
@@ -10,8 +8,8 @@ const NOT_EQUAL_LINES = 'not equal lines';
 
 class LettersStatistics {
   constructor(filepath) {
-    var file = fs.readFileSync(filepath, 'utf-8');
-    var data = Papa.parse(file).data.filter((elem) => elem[0] !== '');
+    var file = readFileSync(filepath, 'utf-8');
+    var data = parse(file).data.filter((elem) => elem[0] !== '');
     this.data = {};
     for (var i = 0; i < data.length; ++i) {
       var currentMRZ = data[i].slice(1);
@@ -79,4 +77,4 @@ class LettersStatistics {
   }
 }
 
-module.exports = LettersStatistics;
+export default LettersStatistics;

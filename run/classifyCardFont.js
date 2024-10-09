@@ -1,10 +1,10 @@
-'use strict';
 
-const groupBy = require('lodash.groupby');
-const minimist = require('minimist');
 
-const { loadData } = require('../src/svm');
-const { getNumberToLetterHeightRatio } = require('../src/util/rois');
+import groupBy from 'lodash.groupby';
+import minimist from 'minimist';
+
+import{ loadData } from '../src/svm';
+import { getNumberToLetterHeightRatio } from '../src/util/rois';
 
 const argv = minimist(process.argv.slice(2));
 

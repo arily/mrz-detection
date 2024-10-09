@@ -3,37 +3,35 @@
   https://www.pyimagesearch.com/2015/11/30/detecting-machine-readable-zones-in-passport-images/
  */
 
-'use strict';
-
-const radiansDegrees = require('radians-degrees');
-const { Matrix } = require('ml-matrix');
-const {
-  rotateDEG,
-  translate,
-  transform,
-  applyToPoint,
-  applyToPoints
-} = require('transformation-matrix');
+import radiansDegrees from 'radians-degrees';
+import { Matrix } from 'ml-matrix';
+import { rotateDEG, translate, transform, applyToPoint, applyToPoints } from 'transformation-matrix';
+import {algorithm} from './roiOptions.js'
 
 const rectKernel = getRectKernel(9, 5);
 const sqKernel = getRectKernel(19, 19);
 
-function getMrz(image, options) {
-  try {
-    return internalGetMrz(image, options);
-  } catch (e) {
-    return internalGetMrz(image.rotateLeft(), options);
-  }
+
+function getMrz(image, options, size) {
+  return internalGetMrz(image, options, size);
+  // try {
+  // } catch (e) {
+  //   console.error('getMrz to left', e)
+  //   return internalGetMrz(image.rotateLeft(), options);
+  // }
 }
 
-function internalGetMrz(image, options = {}) {
+
+
+function internalGetMrz(image, options = {}, size) {
   const { debug = false, out = {} } = options;
+
 
   const original = image;
 
   const images = out;
 
-  const resized = image.resize({ width: 500 });
+  const resized = image.resize({ width: size });
   if (debug) images.resized = resized;
 
   const originalToTreatedRatio = original.width / resized.width;
@@ -60,7 +58,7 @@ function internalGetMrz(image, options = {}) {
   if (debug) images.close = image;
 
   image = image.mask({
-    algorithm: 'otsu'
+    algorithm: algorithm,
   });
   if (debug) images.mask = image;
 
@@ -77,6 +75,7 @@ function internalGetMrz(image, options = {}) {
     minSurface: 5000
     // minWidth: 400
   });
+
 
   let masks = rois.map((roi) => roi.getMask());
   rois = rois.map((roi, idx) => {
@@ -135,6 +134,7 @@ function internalGetMrz(image, options = {}) {
 
   const mrzRoi = rois[0];
   let angle = mrzRoi.meta.angle;
+  console.log('angle', angle);
   let regionTransform;
   if (Math.abs(angle) > 45) {
     if (angle < 0) {
@@ -258,4 +258,4 @@ function getRotationAround(image, angle) {
   );
 }
 
-module.exports = getMrz;
+export default getMrz;

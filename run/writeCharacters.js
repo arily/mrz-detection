@@ -1,14 +1,11 @@
-'use strict';
+import { join, resolve, extname, parse as parsePath } from 'path';
+import { getLinesFromImage } from 'ocr-tools';
+import fs from 'fs-extra'
+import minimist from 'minimist';
+import { Image as IJS } from 'image-js';
 
-const { join, resolve, extname, parse: parsePath } = require('path');
-
-const { getLinesFromImage } = require('ocr-tools');
-const fs = require('fs-extra');
-const minimist = require('minimist');
-const IJS = require('image-js').Image;
-
-const { writeImages } = require('../src/util/readWrite');
-const roiOptions = require('../src/roiOptions');
+import { writeImages } from '../src/util/readWrite';
+import roiOptions from '../src/roiOptions';
 
 const argv = minimist(process.argv.slice(2));
 

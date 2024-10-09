@@ -1,23 +1,22 @@
-'use strict';
 
-const path = require('path');
-const assert = require('assert');
 
-const fs = require('fs-extra');
-const { generateSymbolImage, getLinesFromImage } = require('ocr-tools');
-const minimist = require('minimist');
+import { resolve, join } from 'path';
+import { equal } from 'assert';
+import fs from 'fs-extra'
+import { generateSymbolImage, getLinesFromImage } from 'ocr-tools';
+import minimist from 'minimist';
 
 const argv = minimist(process.argv.slice(2), {
   string: ['fontSizes', 'dilations', 'blurs']
 });
-const roiOptions = require('../src/roiOptions');
-const { writeImages } = require('../src/util/readWrite');
+import roiOptions from '../src/roiOptions';
+import { writeImages } from '../src/util/readWrite';
 
 if (!argv.outDir) {
   throw new Error('outDir argument is required');
 }
 
-let outDir = path.resolve(argv.outDir);
+let outDir = resolve(argv.outDir);
 let blurs = getParam('blurs', [1, 2, 3]);
 let fontSizes = getParam('fontSizes', [78]);
 let dilations = getParam('dilations', [0]);
@@ -123,7 +122,7 @@ async function generate() {
               // img = img.scale({ width: 18, height: 18 });
 
               await writeImages({
-                filePath: path.join(
+                filePath: join(
                   outDir,
                   `${chars[count]}-${globalCount}.png`
                 ),
@@ -144,9 +143,9 @@ async function generate() {
 }
 
 function checkExpectedRois(lines, options) {
-  assert.equal(lines.length, 37, 'correct number of lines');
+  equal(lines.length, 37, 'correct number of lines');
   const nbRois = lines.reduce((prev, current) => prev + current.rois.length, 0);
-  assert.equal(nbRois, options.numberPerLine * 37);
+  equal(nbRois, options.numberPerLine * 37);
 }
 
 generate();

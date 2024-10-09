@@ -1,9 +1,6 @@
-'use strict';
-
-const path = require('path');
-
-const fs = require('fs-extra');
-const IJS = require('image-js').Image;
+import { resolve, dirname, join, basename, extname } from 'path';
+import fs from 'fs-extra'
+import { Image as IJS } from 'image-js';
 
 const extensions = ['.png', '.jpeg', '.jpg'];
 
@@ -18,11 +15,11 @@ async function writeImages(images) {
       throw new Error('image and filePath props are mandatory');
     }
 
-    const baseDir = path.resolve(path.dirname(filePath));
+    const baseDir = resolve(dirname(filePath));
     await fs.mkdirp(baseDir);
-    const metadataPath = path.join(
+    const metadataPath = join(
       baseDir,
-      path.basename(filePath).replace(path.extname(filePath), '.json')
+      basename(filePath).replace(extname(filePath), '.json')
     );
 
     await image.save(filePath);
@@ -35,18 +32,18 @@ async function readImages(dir) {
   const files = await fs.readdir(dir);
   // eslint-disable-next-line no-await-in-loop
   for (let file of files) {
-    const filePath = path.join(dir, file);
+    const filePath = join(dir, file);
     const stat = await fs.stat(filePath);
     let metadata;
     if (stat.isFile()) {
-      const ext = path.extname(filePath);
+      const ext = extname(filePath);
       if (!extensions.includes(ext.toLowerCase())) {
         continue;
       }
       const image = await IJS.load(filePath);
       try {
         metadata = await fs.readJson(
-          path.join(dir, file.replace(ext, '.json'))
+          join(dir, file.replace(ext, '.json'))
         );
       } catch (e) {
         metadata = {};
@@ -70,7 +67,7 @@ async function readImages(dir) {
   return images;
 }
 
-module.exports = {
+export default {
   readImages,
   writeImages
 };

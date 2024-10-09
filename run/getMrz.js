@@ -1,12 +1,10 @@
-'use strict';
+import { resolve, join, dirname as _dirname, basename, extname } from 'path';
 
-const path = require('path');
+import fs from 'fs-extra'
+import minimist from 'minimist';
+import { Image } from 'image-js';
 
-const fs = require('fs-extra');
-const minimist = require('minimist');
-const { Image } = require('image-js');
-
-const { getMrz } = require('..');
+import { getMrz } from '..';
 
 const argv = minimist(process.argv.slice(2));
 
@@ -14,7 +12,7 @@ exec().catch(console.error);
 
 async function exec() {
   if (argv.file) {
-    const pathname = path.resolve(argv.file);
+    const pathname = resolve(argv.file);
     console.time(pathname);
     const result = {};
     try {
@@ -29,25 +27,25 @@ async function exec() {
     await saveImages(
       pathname,
       result,
-      path.join(path.dirname(pathname), 'out')
+      join(_dirname(pathname), 'out')
     );
     await saveSingleReport(
       pathname,
       result,
-      path.join(path.dirname(pathname), 'out')
+      join(_dirname(pathname), 'out')
     );
   } else if (argv.dir) {
-    const dirname = path.resolve(argv.dir);
+    const dirname = resolve(argv.dir);
     const files = (await fs.readdir(dirname)).filter((f) => {
       f = f.toLowerCase();
       return f.endsWith('jpg') || f.endsWith('png') || f.endsWith('jpeg');
     });
-    const out = path.join(dirname, 'out');
+    const out = join(dirname, 'out');
     const toSave = [];
     await fs.emptyDir(out);
     for (let file of files) {
       console.log(`process ${file}`);
-      const imagePath = path.join(dirname, file);
+      const imagePath = join(dirname, file);
       console.time(imagePath);
       const result = {};
       try {
@@ -67,13 +65,13 @@ async function exec() {
 }
 
 async function saveImages(imagePath, images, out) {
-  const filename = path.basename(imagePath);
-  const ext = path.extname(filename);
+  const filename = basename(imagePath);
+  const ext = extname(filename);
   const pngName = filename.replace(ext, '.png');
   for (const prefix in images) {
-    const kind = path.join(out, prefix);
+    const kind = join(out, prefix);
     await fs.ensureDir(kind);
-    await images[prefix].save(path.join(kind, pngName));
+    await images[prefix].save(join(kind, pngName));
   }
 }
 
@@ -117,7 +115,7 @@ async function saveSingleReport(imagePath, images, out) {
       </body>
     </html>
   `;
-  await fs.writeFile(path.join(out, 'report.html'), report);
+  await fs.writeFile(join(out, 'report.html'), report);
 }
 
 async function saveReports(results, out) {
@@ -148,7 +146,7 @@ async function saveReports(results, out) {
       </body>
     </html>
   `;
-  await fs.writeFile(path.join(out, 'report.html'), report);
+  await fs.writeFile(join(out, 'report.html'), report);
 }
 
 function getHeaders(prefixes) {
@@ -156,25 +154,24 @@ function getHeaders(prefixes) {
 }
 
 function getTableRow(imagePath, prefixes, images) {
-  const filename = path.basename(imagePath);
-  const ext = path.extname(filename);
+  const filename = basename(imagePath);
+  const ext = extname(filename);
   const pngName = filename.replace(ext, '.png');
   return `
     <tr>
       <td>${filename}</td>
       ${prefixes
-    .map(
-      (prefix) =>
-        `<td><img style="max-width: 500px;" src="${prefix}/${pngName}"</td>`
-    )
-    .join('\n')}
-      <td>${
-  images.crop
-    ? `<span class="histogram">${images.crop
-      .grey()
-      .histogram.join(',')}</span>`
-    : ''
-}</td>
+      .map(
+        (prefix) =>
+          `<td><img style="max-width: 500px;" src="${prefix}/${pngName}"</td>`
+      )
+      .join('\n')}
+      <td>${images.crop
+      ? `<span class="histogram">${images.crop
+        .grey()
+        .histogram.join(',')}</span>`
+      : ''
+    }</td>
     </tr>
   `;
 }

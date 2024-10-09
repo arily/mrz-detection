@@ -1,17 +1,11 @@
 // Runs a cross validation leaving all characters from an identity card out
-'use strict';
+import uniq from 'lodash.uniq';
+import minimist from 'minimist';
+import paramGrid from 'ml-param-grid';
 
-const uniq = require('lodash.uniq');
-const minimist = require('minimist');
-const paramGrid = require('ml-param-grid');
-
-const {
-  createModel,
-  applyModel,
-  predict,
-  train,
-  loadData
-} = require('../src/svm');
+import {
+  createModel, applyModel, predict, train, loadData
+} from '../src/svm';
 
 const argv = minimist(process.argv.slice(2));
 

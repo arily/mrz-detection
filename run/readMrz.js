@@ -1,13 +1,10 @@
-'use strict';
+import { join, resolve, extname, parse as parsePath } from 'path';
+import fs from 'fs-extra'
+import minimist from 'minimist';
+import { Image as IJS } from 'image-js';
+import { parse } from 'mrz';
 
-const { join, resolve, extname, parse: parsePath } = require('path');
-
-const fs = require('fs-extra');
-const minimist = require('minimist');
-const IJS = require('image-js').Image;
-const { parse } = require('mrz');
-
-const { readMrz } = require('..');
+import { readMrz } from '..';
 
 const argv = minimist(process.argv.slice(2));
 
