@@ -1,6 +1,6 @@
-import { resolve, dirname, join, basename, extname } from 'path';
-import fs from 'fs-extra'
-import { Image as IJS } from 'image-js';
+const { resolve, dirname, join, basename, extname } = require('path');
+const fs = require('fs-extra');
+const { Image: IJS } = require('image-js');
 
 const extensions = ['.png', '.jpeg', '.jpg'];
 
@@ -67,7 +67,8 @@ async function readImages(dir) {
   return images;
 }
 
-export default {
+module.exports = {
   readImages,
   writeImages
 };
+

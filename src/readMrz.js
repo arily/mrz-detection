@@ -1,10 +1,8 @@
-
-
-import mrzOcr from './internal/mrzOcr.js';
-import * as roiOptions from './roiOptions.js';
+const mrzOcr = require('./internal/mrzOcr.js');
+const roiOptions = require('./roiOptions.js');
 
 async function readMrz(image, options = {}) {
-  var { ocrResult, mask, rois } = await mrzOcr(image, roiOptions);
+  const { ocrResult, mask, rois } = await mrzOcr(image, roiOptions);
 
   if (options.saveName) {
     mask.save(options.saveName);
@@ -13,4 +11,5 @@ async function readMrz(image, options = {}) {
   return { rois, mrz: ocrResult };
 }
 
-export default readMrz;
+module.exports = readMrz;
+

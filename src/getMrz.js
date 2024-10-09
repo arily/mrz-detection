@@ -3,14 +3,17 @@
   https://www.pyimagesearch.com/2015/11/30/detecting-machine-readable-zones-in-passport-images/
  */
 
-import radiansDegrees from 'radians-degrees';
-import { Matrix } from 'ml-matrix';
-import { rotateDEG, translate, transform, applyToPoint, applyToPoints } from 'transformation-matrix';
-import {algorithm} from './roiOptions.js'
+const radiansDegrees = require('radians-degrees');
+const { Matrix } = require('ml-matrix');
+const { rotateDEG, translate, transform, applyToPoint, applyToPoints } = require('transformation-matrix');
+
+const { algorithm } = require('./roiOptions.js');
 
 const rectKernel = getRectKernel(9, 5);
 const sqKernel = getRectKernel(19, 19);
 
+
+module.exports = getMrz;
 
 function getMrz(image, options, size) {
   return internalGetMrz(image, options, size);
@@ -20,7 +23,6 @@ function getMrz(image, options, size) {
   //   return internalGetMrz(image.rotateLeft(), options);
   // }
 }
-
 
 
 function internalGetMrz(image, options = {}, size) {
@@ -258,4 +260,3 @@ function getRotationAround(image, angle) {
   );
 }
 
-export default getMrz;

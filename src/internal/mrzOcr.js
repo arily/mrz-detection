@@ -1,7 +1,7 @@
 // @ts-check
-import { getLinesFromImage } from 'ocr-tools';
 
-import { predictImages } from '../svm.js';
+const { getLinesFromImage } = require('ocr-tools');
+const { predictImages } = require('../svm.js');
 
 async function mrzOcr(image, roiOptions = {}) {
   roiOptions = Object.assign({}, { method: 'svm' }, roiOptions);
@@ -89,4 +89,5 @@ async function ocrLines(lines, ctx) {
   };
 }
 
-export default mrzOcr;
+module.exports = mrzOcr;
+

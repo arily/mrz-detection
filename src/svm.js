@@ -1,40 +1,32 @@
-import { resolve, join } from 'path';
+const { resolve, join } = require('path');
 
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-
-
-import fs from 'fs-extra'
-import groupBy from 'lodash.groupby';
-import { extractHOG as _extractHOG } from 'hog-features';
-import SVMPromise from 'libsvm-js/wasm.js'
-import Kernel from 'ml-kernel';
-import range from 'lodash.range';
-import uniq from 'lodash.uniq';
-import BSON from 'bson'
-import readImages from '../src/util/readWrite.js';
+const fs = require('fs-extra');
+const groupBy = require('lodash.groupby');
+const { extractHOG: _extractHOG } = require('hog-features');
+const SVMPromise = require('libsvm-js/wasm.js');
+const Kernel = require('ml-kernel');
+const range = require('lodash.range');
+const uniq = require('lodash.uniq');
+const BSON = require('bson');
+const readImages = require('../src/util/readWrite.js');
 
 let SVM;
 
 async function loadData(dir) {
   dir = resolve(join(__dirname, '..'), dir);
   const data = await readImages(dir);
-  for (let entry of data) {
+  for (const entry of data) {
     let { image } = entry;
     entry.descriptor = extractHOG(image);
     entry.height = image.height;
   }
 
   const groupedData = groupBy(data, (d) => d.card);
-  for (let card in groupedData) {
+  for (const card in groupedData) {
     const heights = groupedData[card].map((d) => d.height);
     const maxHeight = Math.max.apply(null, heights);
     const minHeight = Math.min.apply(null, heights);
-    for (let d of groupedData[card]) {
+    for (const d of groupedData[card]) {
       // This last descriptor is very important to differentiate numbers and letters
       // Because with OCR-B font, numbers are slightly higher than numbers
       let bonusFeature = 1;
@@ -66,7 +58,7 @@ function extractHOG(image) {
 // Get descriptors for images from 1 identity card
 function getDescriptors(images) {
   const result = [];
-  for (let image of images) {
+  for (const image of images) {
     result.push(extractHOG(image));
   }
 
@@ -191,7 +183,7 @@ function getKernel(options) {
   return new Kernel(options.type, options);
 }
 
-export {
+module.exports = {
   applyModel,
   createModel,
   train,
@@ -200,3 +192,4 @@ export {
   predictImages,
   loadData
 };
+

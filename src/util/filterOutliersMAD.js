@@ -1,7 +1,7 @@
-import statsMedian from 'ml-array-median';
+const statsMedian = require('ml-array-median');
 // const mean = require('ml-array-mean');
 
-export default function (data, threshold, accessor) {
+module.exports = function (data, threshold, accessor) {
   accessor = accessor ? accessor : (x) => x;
   threshold = threshold || 3.5;
   const newData = data.map(accessor);
@@ -20,3 +20,4 @@ export default function (data, threshold, accessor) {
   //   }
   return data.filter((point, idx) => zScore[idx] < threshold);
 };
+

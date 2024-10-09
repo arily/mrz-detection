@@ -1,9 +1,7 @@
+const mean = require('ml-array-mean');
+const groupBy = require('lodash.groupby');
 
-
-import mean from 'ml-array-mean';
-import groupBy from 'lodash.groupby';
-
-import filterMAD from './filterOutliersMAD.js';
+const filterMAD = require('./filterOutliersMAD.js');
 
 function getNumberToLetterHeightRatio(card) {
   // Filter < char for they can be smaller in some fonts
@@ -50,4 +48,5 @@ function getNumberToLetterHeightRatio(card) {
   // features.push([getCharHeightRatioDescriptor(card.map((c) => c.image))]);
 }
 
-export { getNumberToLetterHeightRatio };
+module.exports = { getNumberToLetterHeightRatio };
+
